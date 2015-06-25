@@ -43,9 +43,7 @@ public abstract class WebDriverSupport {
     private static Logger logger = Logger.getLogger(WebDriverSupport.class);
 
     public static String baseUrl;
-
-    // Made as ThreadLocal to make this class multi-thread safe. Use
-    // driver.get() to get the WebDriver object.
+    
     protected ThreadLocal<WebDriver> driver;
     protected String driverType;
     public Properties driverProperties;
@@ -78,24 +76,42 @@ public abstract class WebDriverSupport {
         }
     }
 
+    // Every test that can open a browser 
+    public void setUpBeforeEachMethod() {
+    	setUpBeforeTestOrMethod();
+    }
+
+    // Opens the browser before the test
     public void setUpBeforeEachTest() {
+    	setUpBeforeTestOrMethod();
+    }
+
+    private void setUpBeforeTestOrMethod() {
         driver.set(getDriver());
         driver.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get().get(baseUrl);
         driver.get().manage().window().maximize();
     }
-
-    public void setupWithCookies(List<Cookie> cookies) {
-        driver.set(getDriver());
-        driver.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get().get(baseUrl);
-        for (Cookie cookie : cookies) {
-            driver.get().manage().addCookie(cookie);
+    
+    // Closes the browser for each test method execution
+    public void cleanUpAfterEachMethod(ITestContext context, ITestResult result) {
+    	cleanUpAfterEachTestOrMethod(context,result );
+    }
+    
+    // Closes the browser after each test is run
+    public void cleanUpAfterEachTest(ITestContext context, ITestResult result) {
+    	cleanUpAfterEachTestOrMethod(context,result );
+    }
+    
+    public void cleanUpAfterMethodDoNotCloseBrowser(ITestContext context, ITestResult result) {
+        Boolean isScreenshot = new Boolean(driverProperties.getProperty(
+                "takeScreenshotOnFailure", "true"));
+        if (result != null && isScreenshot && (!result.isSuccess())) {
+            takeScreenshot(context, result);
         }
-        driver.get().get(baseUrl);
     }
 
-    public void cleanUpAfterEachTest(ITestContext context, ITestResult result) {
+    private void cleanUpAfterEachTestOrMethod(ITestContext context, ITestResult result) {
         RemoteWebDriver remoteDriver;
         Boolean isScreenshot = new Boolean(driverProperties.getProperty(
                 "takeScreenshotOnFailure", "true"));
@@ -119,10 +135,8 @@ public abstract class WebDriverSupport {
 
             try {
                 if (remoteDriver == null) {
-                    // TODO: Reporter.log("Driver object is null");
                 }
                 else if (remoteDriver.getSessionId() == null) {
-                    // TODO: Reporter.log("Session is null");
                 }
                 else {
                     driver.get().quit();
@@ -136,6 +150,7 @@ public abstract class WebDriverSupport {
         }
     }
 
+    // This is simply to close the browser
     public void cleanUpWebDriver() {
         if (driver != null && !driverType.equalsIgnoreCase("grid")) {
             // TODO: Temporary fix to continue running remaining tests even if
@@ -296,33 +311,6 @@ public abstract class WebDriverSupport {
 
     private String getBrowserContext() {
         return this.platformName + ", " + this.browserType + this.browserVersion;
-    }
-
-    public String[] getBaseSiteUrl(String url) {
-        return url.split("://");
-    }
-
-    public String getHttpResponseHeader(String resourceUrl, String headerName) {
-        String headerValue = "";
-        try {
-            HttpClient client = new DefaultHttpClient();
-            HttpGet get = new HttpGet(resourceUrl);
-            HttpResponse response = client.execute(get);
-            Header[] headers = response.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                if (headers[i].getName().equals(headerName)) {
-                    headerValue = headers[i].getValue();
-                    break;
-                }
-            }
-        }
-        catch (ClientProtocolException e) {
-            logger.error(e.getMessage());
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return headerValue;
     }
 
     // ------------------- Abstract methods -----------------------------

@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2014 by Salesforce.com Inc.  All Rights Reserved.
- * This file contains proprietary information of Salesforce.com Inc.
- * Copying, use, reverse engineering, modification or reproduction of
- * this file without prior written approval is prohibited.
- *
- */
 
 package com.elementum.webdriver.pages;
 

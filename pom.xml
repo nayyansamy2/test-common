@@ -21,7 +21,6 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<!-- jar plugin to produce 3 jars: impl (default), interface, tests -->
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>${maven.jar.version}</version>
 					<executions>
