@@ -24,8 +24,6 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.firefox.internal.ProfilesIni;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.Augmenter;
@@ -236,13 +234,7 @@ public abstract class WebDriverSupport {
             return new InternetExplorerDriver(gridConfig);
         }
         else if (driverType.equalsIgnoreCase("firefox")) {
-            FirefoxProfile profile = getFFBrowserProfile();
-            if (profile != null) {
-                return new FirefoxDriver(profile);
-            }
-            else {
-                return new FirefoxDriver();
-            }
+            return new FirefoxDriver();
         }
         else if (driverType.equalsIgnoreCase("chrome")) {
             return new ChromeDriver();
@@ -260,36 +252,6 @@ public abstract class WebDriverSupport {
             throw new RuntimeException("Invalid driver, driver should be either one of "
                     + "htmlunit, firefox, ie, chrome and grid");
         }
-    }
-
-    private FirefoxProfile getFFBrowserProfile() {
-        ProfilesIni allProfiles = new ProfilesIni();
-        String property = driverProperties.getProperty("firefoxProfile");
-        if (property == null) {
-            return null;
-        }
-        System.setProperty("webdriver.firefox.profile", property);
-        String browserProfile = System.getProperty("webdriver.firefox.profile");
-        FirefoxProfile profile = allProfiles.getProfile(browserProfile);
-        profile.setAcceptUntrustedCertificates(true);
-        profile.setAssumeUntrustedCertificateIssuer(false);
-        // example: download.path=/tools/apache/htdocs
-        String downloadPath = driverProperties.getProperty("download.path",null);
-        // example: download.app.types=text/csv
-        String appTypes = driverProperties.getProperty("download.app.types",null);
-        if (downloadPath != null && appTypes != null) {
-            System.out.println("force downloads to "+downloadPath+" for appTypes "+appTypes);
-            profile.setPreference("browser.download.dir", downloadPath);
-            profile.setPreference("browser.download.lastDir", downloadPath);
-            profile.setPreference("browser.download.manager.showWhenStarting", false);
-            profile.setPreference("plugin.disable_full_page_plugin_for_types", appTypes);
-
-            profile.setPreference("browser.download.folderList", 2);
-            profile.setPreference("browser.download.defaultFolder", downloadPath);
-            profile.setPreference("browser.helperApps.neverAsk.saveToDisk", appTypes);
-            profile.setPreference("browser.helperApps.alwaysAsk.force", false);
-        }
-        return profile;
     }
 
     public void createDataSource() {
@@ -317,7 +279,7 @@ public abstract class WebDriverSupport {
         }
         else if (browserType.equals("chrome")) {
             // System.setProperty("webdriver.chrome.driver",
-            // "C:\\chromedriver\\chromedriver.exe");
+            // "path/to/chromedriver");
             gridConfig = DesiredCapabilities.chrome();
             gridConfig.setCapability("version", browserVersion);
             gridConfig.setCapability("platform", platformName);
@@ -353,7 +315,6 @@ public abstract class WebDriverSupport {
                     break;
                 }
             }
-
         }
         catch (ClientProtocolException e) {
             logger.error(e.getMessage());

@@ -27,23 +27,6 @@ public class WebDriverUtil {
         }
     }
 
-    public static long getDiffInDays(String source) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
-        Date date = null;
-        try {
-            date = dateFormat.parse(source);
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Calendar cal = Calendar.getInstance();
-        // Calculate difference in milliseconds
-        long diff = cal.getTime().getTime() - date.getTime();
-        // Calculate difference in days
-        long diffDays = diff / (24 * 60 * 60 * 1000);
-        return diffDays;
-    }
-
     public static int getNoOfOccurrenceOfGivenText(String origText, String findText) {
         return origText.toLowerCase().split(findText.toLowerCase()).length - 1;
     }
@@ -78,17 +61,6 @@ public class WebDriverUtil {
         return matcher.replaceAll(replaceStr);
     }
 
-    public static String extractDomain(String email) {
-        String[] emailContent = null;
-        String emailDomain = "";
-        try {
-            emailContent = email.split("@");
-            emailDomain = emailContent[1];
-        } catch (ArrayIndexOutOfBoundsException ae) {
-            ae.printStackTrace();
-        }
-        return emailDomain;
-    }
 
     public static String extractEmailTextFromDomain(String email) {
         String[] emailContent = null;

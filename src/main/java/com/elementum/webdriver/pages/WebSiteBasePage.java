@@ -6,7 +6,7 @@
  *
  */
 
-package com.salesforce.ddc.webdriver.pages;
+package com.elementum.webdriver.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
